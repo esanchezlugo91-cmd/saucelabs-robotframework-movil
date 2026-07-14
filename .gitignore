@@ -1,0 +1,38 @@
+# --- Archivos de Aplicación (APKs / IPAs) ---
+*.apk
+*.ipa
+*.app
+
+# --- Entornos Virtuales de Python ---
+venv/
+.venv/
+env/
+ENV/
+build/
+dist/
+*.egg-info/
+
+# --- Reportes de Robot Framework ---
+output.xml
+log.html
+report.html
+
+# --- Capturas de pantalla y Evidencias ---
+
+*.png
+*.jpg
+*.jpeg
+pabot_results/
+
+# --- Configuración del Editor / IDE ---
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# --- Archivos del Sistema Operativo ---
+.DS_Store
+Thumbs.db
