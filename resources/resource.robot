@@ -2,7 +2,9 @@
 *** Settings ***
 Documentation   Este archivo contiene palabras claves y variables reutilizables.
 Library        AppiumLibrary
+Library      String
 Variables    ${EXECDIR}/resources/variables_resource.py
+Variables        ${EXECDIR}/resources/variables_productos.py
 
 
 *** Keywords ***
@@ -30,3 +32,51 @@ Rellenar el formulario de acceso
     Input Text    ${LOGIN_INPUTS}[text_box_password]    ${password}
     Click Element    ${LOGIN_INPUTS}[boton_login]
 
+
+Logueo exitoso
+    [Documentation]     Caso de prueba para validar que el usuario ingresa correctamente a la aplicacion.
+    Ir a la pantalla de Login
+    Rellenar el formulario de acceso    ${USER_NAME}    ${PASSWORD}
+
+Seleccionar producto
+    [Documentation]    Selecciona un producto validando su índice y texto de forma segura.
+    [Arguments]    ${index_product}    ${text_product}
+
+    ${product_list}       Format String    ${PRODUCTS}[id_products]    ${index_product}
+    ${text_products}      Format String    ${PRODUCTS}[text_product]    ${index_product}
+
+
+    Wait Until Page Contains Element    ${product_list}     timeout=5s
+
+    FOR    ${intento}    IN RANGE    1    6
+
+        ${visible}    Run Keyword And Return Status    Page Should Contain Element    ${text_products}
+
+        IF    ${visible}
+
+            ${texto_actual}    Get Text    ${text_products}
+            ${coincide}    Run Keyword And Return Status    Should Be Equal As Strings    ${texto_actual}    ${text_product}
+
+            IF    ${coincide}
+                BREAK
+            END
+        END
+
+        IF    ${intento} == 5
+            Fail    El producto '${text_product}' no se encontró tras realizar scroll.
+        END
+
+        Swipe    start_x=500    start_y=800    end_x=500    end_y=300    duration=1000
+        Sleep    1s
+    END
+
+    Click Element    ${product_list}
+
+
+Verificar nombre y precio del producto
+    [Documentation]    Verifica el nombre del producto y precio en la pantalla de detalle.
+    [Arguments]    ${nombre_producto}
+
+    ${locator_titulo}    Set Variable    ${PRODUCTS}[principal_text]
+    Wait Until Page Contains Element    ${locator_titulo}     timeout=10s
+    Element Text Should Be    ${locator_titulo}    ${nombre_producto}
