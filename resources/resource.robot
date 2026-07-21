@@ -75,8 +75,79 @@ Seleccionar producto
 
 Verificar nombre y precio del producto
     [Documentation]    Verifica el nombre del producto y precio en la pantalla de detalle.
-    [Arguments]    ${nombre_producto}
+    [Arguments]    ${nombre_producto}    ${price_product}
 
     ${locator_titulo}    Set Variable    ${PRODUCTS}[principal_text]
     Wait Until Page Contains Element    ${locator_titulo}     timeout=10s
     Element Text Should Be    ${locator_titulo}    ${nombre_producto}
+    Wait Until Element Is Visible    ${PRODUCTS}[id_price]    timeout=10s
+    Element Text Should Be    ${PRODUCTS}[id_price]    ${price_product}
+
+Clic agregar al carrito
+    [Documentation]    Se agrega el producto al carrito de compras
+    Wait Until Element Is Visible    ${PRODUCTS}[id_add_cart]    timeout=10s
+    Click Element    ${PRODUCTS}[id_add_cart]
+    
+Verificar los productos en el carrito de compras
+    [Documentation]    Verificar que cada producto se agregue al carrito de compras
+    Wait Until Element Is Visible    ${PRODUCTS}[id_cart]    timeout=10s
+    Click Element    ${PRODUCTS}[id_cart]
+
+Flujo Completo Agregar Producto Al Carrito
+    [Documentation]    Módulo reutilizable: se loguea, busca, valida y añade un artículo
+    [Arguments]        ${id_producto}    ${nombre_producto}    ${precio_producto}
+
+    Seleccionar producto    ${id_producto}    ${nombre_producto}
+    Verificar nombre y precio del producto    ${nombre_producto}    ${precio_producto}
+    Clic agregar al carrito
+
+Regresar al catalogo de productos
+    Click Element    ${PRODUCTS}[id_hamburger_menu]
+    Wait Until Element Is Visible    ${PRODUCTS}[catalog_menu]    timeout=10s
+    Click Element    ${PRODUCTS}[catalog_menu]
+
+Verificar Nombre y Precio del Producto Dentro del Carrito de Compras
+    [Documentation]    Valida el nombre y precio de un producto en el carrito haciendo scroll si el indice no es visible.
+    [Arguments]    ${index_product}    ${product_name}    ${product_price}
+
+    ${product_title}    Replace String    ${PRODUCTS}[product_title_cart]    {}    ${index_product}
+    ${product_cost}     Replace String    ${PRODUCTS}[product_price_cart]    {}    ${index_product}
+
+
+    FOR    ${intento}    IN RANGE    1    6
+
+        ${visible}    Run Keyword And Return Status    Page Should Contain Element    ${product_title}
+
+        IF    ${visible}
+
+            BREAK
+        END
+
+        IF    ${intento} == 5
+            Fail    El producto en la posicion [${index_product}] no aparecio en el carrito tras realizar scroll.
+        END
+
+        Swipe    start_x=500    start_y=800    end_x=500    end_y=300    duration=1000ms
+        Sleep    1s
+    END
+
+    Element Text Should Be    ${product_title}    ${product_name}
+
+
+    Wait Until Page Contains Element    ${product_cost}     timeout=5s
+    Element Text Should Be    ${product_cost}     ${product_price}
+
+
+Verificar Numero de Items y Precio Total
+    [Documentation]    Validar que el numero de items y precio total sea el correcto
+    [Arguments]    ${items}    ${total}
+
+    Element Text Should Be    ${PRODUCTS}[id_items]    ${items}
+    Element Text Should Be    ${PRODUCTS}[id_total]    ${total}
+    
+     
+
+    
+
+
+
